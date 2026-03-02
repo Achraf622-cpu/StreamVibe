@@ -149,8 +149,10 @@ export const transformMedia = (item) => {
         duration: isMovie ? 'Movie' : 'Series',
         releaseYear: (item.release_date || item.first_air_date || '').split('-')[0],
         type: isMovie ? 'movie' : 'tv', // Standardized to 'movie' | 'tv'
-        // Map genres!
-        category: getGenreName(item.genre_ids, type),
+        // Map genres! Get from detailed response (genres) or list response (genre_ids)
+        category: item.genres && item.genres.length > 0 
+            ? item.genres[0].name 
+            : getGenreName(item.genre_ids, type),
         rating: item.vote_average ? item.vote_average.toFixed(1) : 'N/A',
         originalLanguage: item.original_language,
         popularity: item.popularity,

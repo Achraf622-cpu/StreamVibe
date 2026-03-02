@@ -1,12 +1,22 @@
 import { Link } from 'react-router-dom';
-import { Play, Clock, Star } from 'lucide-react';
-
-// Inline styles for fast prototyping, or using utility classes
-// We will rely on our global styles mostly.
+import { Play, Star, Plus, Check } from 'lucide-react';
+import { useData } from '../../context/DataContext';
 
 export const VideoCard = ({ video }) => {
+    const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useData();
+    const inWatchlist = isInWatchlist(video.id);
+
+    const handleWatchlistClick = (e) => {
+        e.preventDefault(); // Prevent navigating to the watch page
+        if (inWatchlist) {
+            removeFromWatchlist(video.id);
+        } else {
+            addToWatchlist(video);
+        }
+    };
+
     return (
-        <Link to={`/watch/${video.type}/${video.id}`} className="video-card">
+        <Link to={`/watch/${video.type}/${video.id}`} className="video-card" style={{ position: 'relative' }}>
             <div className="video-thumbnail-wrapper">
                 <img
                     src={video.thumbnailUrl}
@@ -20,6 +30,19 @@ export const VideoCard = ({ video }) => {
                     </div>
                 </div>
                 <div className="video-badge">{video.duration}</div>
+                <button 
+                    onClick={handleWatchlistClick}
+                    style={{ 
+                        position: 'absolute', top: '10px', right: '10px', 
+                        background: inWatchlist ? 'var(--primary)' : 'rgba(0,0,0,0.6)', 
+                        border: 'none', borderRadius: '50%', width: '32px', height: '32px', 
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', 
+                        zIndex: 2, transition: 'all 0.2s ease'
+                    }}
+                    title={inWatchlist ? "Remove from My List" : "Add to My List"}
+                >
+                    {inWatchlist ? <Check size={16} color="white" /> : <Plus size={16} color="white" />}
+                </button>
             </div>
 
             <div className="video-info">

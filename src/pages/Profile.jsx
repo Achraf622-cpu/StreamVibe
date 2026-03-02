@@ -13,7 +13,10 @@ export default function Profile() {
     const safeWatchHistory = Array.isArray(watchHistory) ? watchHistory : [];
     const safeWatchlist = Array.isArray(watchlist) ? watchlist : [];
 
-    const totalWatchTime = safeWatchHistory.reduce((acc, current) => acc + (current.duration || 120), 0);
+    const totalWatchTime = safeWatchHistory.reduce((acc, current) => {
+        const parsed = parseInt(current.duration);
+        return acc + (isNaN(parsed) ? 120 : parsed);
+    }, 0);
     const watchHours = Math.floor(totalWatchTime / 60);
 
     return (
