@@ -1,82 +1,72 @@
-# StreamVibe
+# Plateforme de Streaming Vidéo - Projet Scolaire
 
-StreamVibe is a modern, responsive streaming platform interface (Netflix clone) built with React and Vite. It offers a seamless experience for browsing and discovering movies and TV shows, featuring dynamic content rows, infinite scrolling, category filtering, and a personalized watchlist.
+**Étudiant:** [YOUR NAME HERE]  
+**Période du projet:** 02/02/26 au 06/02/26
 
-## Features
+Ce projet est une application web moderne de streaming vidéo (type Netflix) développée avec React.js. Il répond aux exigences du projet scolaire "Frontend Plateforme de Streaming Vidéo" en permettant la découverte, la recherche et la gestion d'une liste de lecture et d'un historique de vidéos.
 
-- **Dynamic Content Discovery**: Browse trending movies, new releases, and TV shows through horizontal scrolling rows.
-- **Search Functionality**: Quickly find specific movies or TV series with a dedicated search engine.
-- **Categories & Filtering**: Navigate between Movies, Series, and customized genres effortlessly.
-- **Infinite Scrolling**: Continuously load more content as you scroll down the page.
-- **Watchlist (Favorites)**: Add and manage your favorite content to watch later.
-- **Authentication**: User login and registration flows (Context-based state management).
-- **Responsive Design**: Fully optimized for desktops, tablets, and mobile devices.
+## 🎯 Fonctionnalités Développées
 
-## Tech Stack
+### 1. Authentification
 
-- **Frontend Framework**: [React 19](https://react.dev/)
-- **Build Tool**: [Vite](https://vitejs.dev/)
-- **Routing**: [React Router v7](https://reactrouter.com/)
-- **Icons**: [Lucide React](https://lucide.dev/)
-- **State Management**: React Context API (`AuthContext`, `DataContext`)
-- **Styling**: Vanilla CSS with modern flexbox/grid layouts and CSS variables for theming.
+- Système de connexion et d'inscription fonctionnel.
+- Validation des champs (email, mot de passe).
+- Stockage et gestion des sessions via `localStorage` (simulé par `AuthContext`).
 
-## Project Structure
+### 2. Catalogue de Découverte (Accueil)
 
-```text
-src/
-├── components/
-│   ├── common/         # Reusable UI elements (Button, Input, ProtectedRoute)
-│   ├── layout/         # Structural components (Navbar, Footer, MainLayout)
-│   └── video/          # Video-specific components (HeroSection, MovieRow, VideoCard)
-├── context/            # Global state (Auth, Data)
-├── hooks/              # Custom React hooks (Infinite Scroll, Local Storage)
-├── pages/              # Main route views (Home, Login, Watchlist, VideoDetails)
-├── services/           # External API integrations (e.g., TMDB API logic)
-├── styles/             # Global CSS and component-specific stylesheets
-└── App.jsx             # Main Application routing
-```
+- Affichage dynamique sous forme de grille et de rangées interactives.
+- Filtrage conditionnel par type (Films / Séries) via la barre de navigation.
+- Système de recherche global (intégré dans la navbar).
 
-## Getting Started
+### 3. Informations Vidéo & Lecteur
 
-### Prerequisites
+- Page `VideoDetails` affichant toutes les métadonnées (titre, description, casting).
+- Implémentation d'un lecteur externe **embarqué (iframe)**.
+- _Note:_ L'application va au-delà des simples trailers demandés et permet le visionnage contextuel de contenus entiers, respectant la consigne stricte du "sans upload/stockage local".
+- Bouton d'ajout/suppression de "Ma Liste".
 
-- Node.js (v18 or higher recommended)
-- npm or yarn
+### 4. Ma Liste (Watchlist) & Profil
 
-### Installation
+- Page dédiée affichant tous les contenus sauvegardés.
+- Page de **Profil Utilisateur** affichant les statistiques de visionnage réelles (heures regardées, compte des vidéos).
+- Synchronisation continue via `DataContext` et `localStorage`.
 
-1. Clone the repository:
+## 🛠️ Exigences Techniques Validées
+
+- **React Hooks :** Utilisation complète de composants fonctionnels (`useState`, `useEffect`, `useMemo`, `useCallback`).
+- **Custom Hooks :** Création et utilisation en production de `useLocalStorage` et d'un complexe `useInfiniteScroll`.
+- **Protection des Routes :** Mise en place d'un composant `<ProtectedRoute>` empêchant l'accès sans authentification valide.
+- **UI / UX Responsive :** Design adaptatif fonctionnel sur mobile, tablette et desktop via CSS natif (Variables, Flexbox, Grid).
+- **Architecture d'État :** Gestion d'état global sans Redux, entièrement gérée par la robustesse de l'API `Context` (AuthContext & DataContext).
+
+## 🌟 Bonus Atteints
+
+- **API Publique Externe :** Intégration complète de l'API **TMDb (The Movie Database)** pour récupérer en temps réel les films, séries, acteurs, recommandations et tendances (`src/services/tmdb.js`).
+
+## 🚀 Installation & Lancement
+
+1. Cloner le repository
 
    ```bash
    git clone https://github.com/Achraf622-cpu/StreamVibe.git
    cd StreamVibe
    ```
 
-2. Install dependencies:
+2. Installer les dépendances
 
    ```bash
    npm install
    ```
 
-3. Start the development server:
-
+3. Lancer le serveur de développement local
    ```bash
    npm run dev
    ```
 
-4. Open your browser and navigate to `http://localhost:5173`.
+_(Aucun backend n'est requis. Toutes les données utilisateur sont sauvegardées dans le navigateur via `localStorage`)_
 
-### Building for Production
+## 🔗 Liens
 
-To create a production build, run:
-
-```bash
-npm run build
-```
-
-This will compile the application into the `dist/` folder, ready for deployment.
-
-## License
-
-This project is licensed under the MIT License.
+- **GitHub :** https://github.com/Achraf622-cpu/StreamVibe.git
+- **Jira :** [Insérer le lien de votre tableau Jira ici]
