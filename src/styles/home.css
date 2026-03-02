@@ -1,0 +1,180 @@
+/* Existing Hero Styles */
+.hero-section {
+    position: relative;
+    height: 85vh;
+    /* Taller hero */
+    min-height: 600px;
+    background-size: cover;
+    background-position: center top;
+    /* Focus on faces usually at top */
+    display: flex;
+    align-items: center;
+    margin-top: -70px;
+    mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+    /* Fade out bottom */
+    -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 70% 20%, rgba(0, 0, 0, 0) 0%, var(--bg-primary) 90%),
+        linear-gradient(to right, var(--bg-primary) 0%, rgba(10, 10, 15, 0.6) 50%, transparent 100%);
+    z-index: 1;
+}
+
+/* ... keep previous hero-content styles ... */
+.hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin-top: 100px;
+}
+
+.hero-badge {
+    /* ... keep previous ... */
+    display: inline-block;
+    background: rgba(139, 92, 246, 0.8);
+    color: white;
+    padding: 4px 12px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: var(--spacing-sm);
+    backdrop-filter: blur(4px);
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: var(--spacing-md);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    line-height: 1.1;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: var(--spacing-xl);
+    max-width: 600px;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+
+/* MOVIE ROWS */
+.movie-row-container {
+    margin-bottom: var(--spacing-xl);
+    position: relative;
+    padding: 0 var(--spacing-lg);
+    /* Add padding to container so items don't touch edge */
+}
+
+.row-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: var(--spacing-md);
+    padding-left: var(--spacing-sm);
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.row-title:hover {
+    color: var(--primary);
+    cursor: pointer;
+}
+
+.row-wrapper {
+    position: relative;
+}
+
+.movie-row {
+    display: flex;
+    gap: var(--spacing-md);
+    overflow-x: auto;
+    padding: var(--spacing-md) 0;
+    /* Vertical padding for hover transform */
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE */
+}
+
+.movie-row::-webkit-scrollbar {
+    display: none;
+    /* Chrome/Safari */
+}
+
+.row-item {
+    flex: 0 0 auto;
+    width: 280px;
+    /* Fixed width for items */
+    transition: transform 0.3s ease, z-index 0.3s;
+    position: relative;
+}
+
+/* Hover Scaling Effect for Row Items */
+.row-item:hover {
+    transform: scale(1.1);
+    z-index: 10;
+}
+
+/* ARROWS */
+.row-arrow {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50px;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    color: white;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s, background 0.2s;
+}
+
+.row-wrapper:hover .row-arrow {
+    opacity: 1;
+}
+
+.row-arrow:hover {
+    background: rgba(0, 0, 0, 0.8);
+    transform: scale(1.1);
+}
+
+.row-arrow.left {
+    left: -20px;
+    border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+.row-arrow.right {
+    right: -20px;
+    border-radius: var(--radius-md) 0 0 var(--radius-md);
+}
+
+/* Card Enhancements for Rows */
+/* Override default VideoCard styles for rows if needed */
+.movie-row .video-card {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Grid Fallback (for Search Results) */
+.grid-view {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: var(--spacing-lg);
+    padding: var(--spacing-lg);
+}
