@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Button } from '../components/common/Button';
@@ -8,6 +8,8 @@ import { Plus, Check, Star, Calendar, Clock, ArrowLeft, Play, X, Film } from 'lu
 export default function VideoDetails() {
     const { id, type } = useParams(); // Get type from URL
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
+    
     const { allVideos, addToWatchlist, removeFromWatchlist, isInWatchlist, addToHistory, getMediaDetails } = useData();
     const [video, setVideo] = useState(null);
     const [inWatchlist, setInWatchlist] = useState(false);
@@ -15,9 +17,31 @@ export default function VideoDetails() {
     const [showTrailer, setShowTrailer] = useState(false);
     const [server, setServer] = useState('vidsrc.xyz'); // Default to VidSrc (Faster)
 
-    // TV Show State
-    const [season, setSeason] = useState(1);
-    const [episode, setEpisode] = useState(1);
+    // TV Show State - initialize from URL if available
+    const initialSeason = parseInt(searchParams.get('season')) || 1;
+    const initialEpisode = parseInt(searchParams.get('episode')) || 1;
+    const [season, setSeason] = useState(initialSeason);
+    const [episode, setEpisode] = useState(initialEpisode);
+
+    // Sync TV Show state back to the URL so refreshes don't lose progress
+    useEffect(() => {
+        const isSeries = type === 'tv' || type === 'series' || video?.type === 'tv' || video?.type === 'SERIE';
+        if (isSeries) {
+            const params = new URLSearchParams(searchParams);
+            let changed = false;
+            
+            if (season !== 1 || params.has('season')) { params.set('season', season); changed = true; }
+            if (episode !== 1 || params.has('episode')) { params.set('episode', episode); changed = true; }
+            
+            // Cleanup defaults
+            if (season === 1) { params.delete('season'); changed = true; }
+            if (episode === 1) { params.delete('episode'); changed = true; }
+
+            if (changed) {
+                setSearchParams(params, { replace: true });
+            }
+        }
+    }, [season, episode, type, video?.type, searchParams, setSearchParams]);
 
     useEffect(() => {
         const handleKeyDown = (e) => {
