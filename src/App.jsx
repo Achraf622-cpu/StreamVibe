@@ -10,6 +10,7 @@ import { MainLayout } from './components/layout/MainLayout';
 import Home from './pages/Home';
 import VideoDetails from './pages/VideoDetails';
 import Watchlist from './pages/Watchlist';
+import Profile from './pages/Profile';
 
 import ScrollToTop from './components/common/ScrollToTop';
 
@@ -33,6 +34,7 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/watch/:type/:id" element={<VideoDetails />} />
               <Route path="/watchlist" element={<Watchlist />} />
+              <Route path="/profile" element={<Profile />} />
               {/* Reuse Home for now but we could add filters via props if we had time */}
               <Route path="/movies" element={<Home />} />
               <Route path="/series" element={<Home />} />

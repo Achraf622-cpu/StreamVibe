@@ -51,9 +51,15 @@ export const Navbar = () => {
         }
     };
 
-    const handleLogout = () => {
+    const handleLogout = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
         logout();
         navigate('/login');
+    };
+
+    const handleProfileNavigation = () => {
+        navigate('/profile');
     };
 
     return (
@@ -102,14 +108,20 @@ export const Navbar = () => {
                     <Bell size={20} />
                 </Button>
 
-                <div className="user-menu" onClick={handleLogout} title="Click to logout">
+                <div className="user-menu" onClick={handleProfileNavigation} title="View Profile" style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
                     <img
                         src={user?.avatar || `https://ui-avatars.com/api/?name=${user?.username || 'User'}`}
                         alt="Profile"
                         className="user-avatar"
                     />
                     <span style={{ fontSize: '0.9rem', fontWeight: 500 }}>{user?.username}</span>
-                    <LogOut size={16} style={{ marginLeft: '10px' }} />
+                    <button 
+                        onClick={handleLogout} 
+                        style={{ marginLeft: '10px', background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                        title="Logout"
+                    >
+                        <LogOut size={16} />
+                    </button>
                 </div>
             </div>
         </nav>
