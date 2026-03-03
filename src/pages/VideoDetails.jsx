@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Button } from '../components/common/Button';
 import { VideoCard } from '../components/video/VideoCard';
-import { Plus, Check, Star, Calendar, Clock, ArrowLeft, Play, X, Film } from 'lucide-react';
+import { Plus, Check, Star, Calendar, Clock, ArrowLeft, Play, X, Film, Lightbulb, LightbulbOff } from 'lucide-react';
 
 export default function VideoDetails() {
     const { id, type } = useParams(); // Get type from URL
@@ -16,6 +16,7 @@ export default function VideoDetails() {
     const [loading, setLoading] = useState(true);
     const [showTrailer, setShowTrailer] = useState(false);
     const [server, setServer] = useState('vidsrc.xyz'); // Default to VidSrc (Faster)
+    const [isTheaterMode, setIsTheaterMode] = useState(false);
 
     // TV Show State - initialize from URL if available
     const initialSeason = parseInt(searchParams.get('season')) || 1;
@@ -236,18 +237,42 @@ export default function VideoDetails() {
                 </div>
 
                 {/* Floating Video Player Section */}
-                <div className="container animate-fade-in animate-delay-1" style={{ marginBottom: '40px' }}>
+                <div 
+                    className={`container animate-fade-in animate-delay-1 ${isTheaterMode ? 'theater-mode-active' : ''}`} 
+                    style={{ 
+                        marginBottom: '40px',
+                        transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)'
+                    }}
+                >
+                    {/* Theater Mode Background Overlay */}
+                    {isTheaterMode && (
+                        <div 
+                            style={{
+                                position: 'fixed',
+                                inset: 0,
+                                background: 'rgba(0,0,0,0.95)',
+                                zIndex: 998,
+                                animation: 'fadeIn 0.5s ease-out'
+                            }}
+                            onClick={() => setIsTheaterMode(false)}
+                        />
+                    )}
+
                     <div className="glass-card" style={{
                         position: 'relative',
                         width: '100%',
-                        height: '75vh',
-                        maxHeight: '800px',
+                        height: isTheaterMode ? '85vh' : '75vh',
+                        maxHeight: isTheaterMode ? 'none' : '800px',
                         backgroundColor: '#000',
-                        borderRadius: 'var(--radius-lg)',
+                        borderRadius: isTheaterMode ? '8px' : 'var(--radius-lg)',
                         overflow: 'hidden',
-                        padding: '4px', // Glass border effect
+                        padding: isTheaterMode ? '0' : '4px', // Remove glass border in theater mode
+                        zIndex: isTheaterMode ? 999 : 1,
+                        boxShadow: isTheaterMode ? '0 0 100px rgba(0,0,0,1)' : 'var(--shadow-lg)',
+                        transition: 'all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1)'
                     }}>
-                        <div style={{ width: '100%', height: '100%', borderRadius: 'calc(var(--radius-lg) - 4px)', overflow: 'hidden' }}>
+                        <div style={{ width: '100%', height: '100%', borderRadius: isTheaterMode ? '0' : 'calc(var(--radius-lg) - 4px)', overflow: 'hidden' }}>
+                            {/* Overlay generic controls block to simulate custom player feel when not focused */}
                             <iframe
                                 key={embedUrl}
                                 width="100%"
@@ -262,32 +287,75 @@ export default function VideoDetails() {
                         </div>
                     </div>
 
-                    {/* Server Selector */}
-                    <div style={{ marginTop: '20px', display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap', padding: '0 8px' }}>
-                        <span style={{ color: 'var(--text-secondary)', fontSize: '0.875rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Server</span>
-                        {['vidking', 'vidsrc.xyz', 'vidsrc.to'].map((srv) => (
-                            <button
-                                key={srv}
-                                onClick={() => setServer(srv)}
-                                style={{
-                                    padding: '8px 16px',
-                                    borderRadius: 'var(--radius-full)',
-                                    border: server === srv ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)',
-                                    background: server === srv ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.03)',
-                                    color: server === srv ? '#fff' : 'var(--text-secondary)',
-                                    fontSize: '0.8rem',
-                                    fontWeight: server === srv ? 600 : 500,
-                                    cursor: 'pointer',
-                                    transition: 'all var(--transition-fast)',
-                                    textTransform: 'capitalize',
-                                    boxShadow: server === srv ? '0 0 15px rgba(168,85,247,0.2)' : 'none'
-                                }}
-                                onMouseOver={(e) => { if(server !== srv) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
-                                onMouseOut={(e) => { if(server !== srv) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
-                            >
-                                {srv === 'vidking' ? 'VidKing (Premium)' : srv}
-                            </button>
-                        ))}
+                    {/* Controls Footer */}
+                    <div style={{ 
+                        marginTop: '20px', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center', 
+                        flexWrap: 'wrap', 
+                        padding: '0 8px',
+                        position: 'relative',
+                        zIndex: isTheaterMode ? 1000 : 1
+                    }}>
+                        {/* Server Selector */}
+                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <span style={{ color: isTheaterMode ? '#fff' : 'var(--text-secondary)', fontSize: '0.875rem', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Server</span>
+                            {['vidking', 'vidsrc.xyz', 'vidsrc.to'].map((srv) => (
+                                <button
+                                    key={srv}
+                                    onClick={() => setServer(srv)}
+                                    style={{
+                                        padding: '8px 16px',
+                                        borderRadius: 'var(--radius-full)',
+                                        border: server === srv ? '1px solid var(--primary)' : '1px solid rgba(255,255,255,0.08)',
+                                        background: server === srv ? 'rgba(168, 85, 247, 0.15)' : 'rgba(255,255,255,0.03)',
+                                        color: server === srv ? '#fff' : 'var(--text-secondary)',
+                                        fontSize: '0.8rem',
+                                        fontWeight: server === srv ? 600 : 500,
+                                        cursor: 'pointer',
+                                        transition: 'all var(--transition-fast)',
+                                        textTransform: 'capitalize',
+                                        boxShadow: server === srv ? '0 0 15px rgba(168,85,247,0.2)' : 'none'
+                                    }}
+                                    onMouseOver={(e) => { if(server !== srv) e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}
+                                    onMouseOut={(e) => { if(server !== srv) e.currentTarget.style.background = 'rgba(255,255,255,0.03)'; }}
+                                >
+                                    {srv === 'vidking' ? 'VidKing (Premium)' : srv}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Theater Mode Toggle */}
+                        <button
+                            onClick={() => setIsTheaterMode(!isTheaterMode)}
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                padding: '10px 20px',
+                                borderRadius: 'var(--radius-full)',
+                                border: '1px solid rgba(255,255,255,0.1)',
+                                background: isTheaterMode ? 'white' : 'rgba(255,255,255,0.05)',
+                                color: isTheaterMode ? 'black' : 'white',
+                                fontWeight: 700,
+                                fontSize: '0.9rem',
+                                cursor: 'pointer',
+                                transition: 'all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1)',
+                                boxShadow: isTheaterMode ? '0 0 20px rgba(255,255,255,0.2)' : 'none'
+                            }}
+                            onMouseOver={(e) => { 
+                                e.currentTarget.style.transform = 'translateY(-2px)';
+                                if (!isTheaterMode) e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                            }}
+                            onMouseOut={(e) => { 
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                if (!isTheaterMode) e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                            }}
+                        >
+                            {isTheaterMode ? <LightbulbOff size={18} /> : <Lightbulb size={18} />}
+                            {isTheaterMode ? 'Lights On' : 'Theater Mode'}
+                        </button>
                     </div>
                 </div>
 
