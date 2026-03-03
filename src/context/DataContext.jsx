@@ -1,23 +1,90 @@
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 import { videos as mockVideos, categories as mockCategories } from '../data/mockData';
 import { tmdb, transformMedia } from '../services/tmdb';
+import { db, isFirebaseConfigured } from '../services/firebase';
+import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { useAuth } from './AuthContext';
 
 const DataContext = createContext();
 
 export const useData = () => useContext(DataContext);
 
 export const DataProvider = ({ children }) => {
+    // Current User
+    const { user } = useAuth();
+    const isSyncingRef = useRef(false); // Prevent infinite loops during sync
+
     // Media State
     const [allVideos, setAllVideos] = useState([]); // Start empty or with mocks
     const [allCategories, setAllCategories] = useState(mockCategories);
     const [isLoading, setIsLoading] = useState(true);
 
-    // User State
-    const [watchlist, setWatchlist] = useLocalStorage('watchlist', []);
-    const [watchHistory, setWatchHistory] = useLocalStorage('watchHistory', []); // { videoId, timestamp, progress }
+    // User State - Local Storage default
+    const [localWatchlist, setLocalWatchlist] = useLocalStorage('watchlist', []);
+    const [localWatchHistory, setLocalWatchHistory] = useLocalStorage('watchHistory', []); // { videoId, timestamp, progress }
+
+    // Live State
+    const [watchlist, setWatchlistState] = useState(localWatchlist);
+    const [watchHistory, setWatchHistoryState] = useState(localWatchHistory);
 
     const apiKey = import.meta.env.VITE_TMDB_API_KEY;
+
+    // Advanced Sync Logic
+    const setWatchlist = useCallback(async (newValOrUpdater) => {
+        setWatchlistState(prev => {
+            const resolved = typeof newValOrUpdater === 'function' ? newValOrUpdater(prev) : newValOrUpdater;
+            if (!isFirebaseConfigured || !user) {
+                setLocalWatchlist(resolved);
+            } else if (!isSyncingRef.current) {
+                // Upload to Firestore
+                setDoc(doc(db, 'users', user.id), { watchlist: resolved }, { merge: true }).catch(e => console.error("Firestore sync error:", e));
+            }
+            return resolved;
+        });
+    }, [user, setLocalWatchlist]);
+
+    const setWatchHistory = useCallback(async (newValOrUpdater) => {
+        setWatchHistoryState(prev => {
+            const resolved = typeof newValOrUpdater === 'function' ? newValOrUpdater(prev) : newValOrUpdater;
+            if (!isFirebaseConfigured || !user) {
+                setLocalWatchHistory(resolved);
+            } else if (!isSyncingRef.current) {
+                // Upload to Firestore
+                setDoc(doc(db, 'users', user.id), { watchHistory: resolved }, { merge: true }).catch(e => console.error("Firestore sync error:", e));
+            }
+            return resolved;
+        });
+    }, [user, setLocalWatchHistory]);
+
+    // Listen to Firestore if authenticated
+    useEffect(() => {
+        if (!isFirebaseConfigured || !user) {
+            // Revert back to local if logged out
+            if (!user) {
+                setWatchlistState(localWatchlist);
+                setWatchHistoryState(localWatchHistory);
+            }
+            return;
+        }
+
+        const userDocRef = doc(db, 'users', user.id);
+        const unsubscribe = onSnapshot(userDocRef, (docSnap) => {
+            isSyncingRef.current = true;
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.watchlist) setWatchlistState(data.watchlist);
+                if (data.watchHistory) setWatchHistoryState(data.watchHistory);
+            } else {
+                // Initialize document with local data if empty
+                setDoc(userDocRef, { watchlist: localWatchlist, watchHistory: localWatchHistory });
+            }
+            // Add slight delay to let state settle before allowing local writes to push back
+            setTimeout(() => { isSyncingRef.current = false; }, 100);
+        });
+
+        return () => unsubscribe();
+    }, [user]);
 
     // Fetch Data on Mount
     useEffect(() => {
