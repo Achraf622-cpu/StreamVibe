@@ -91,6 +91,34 @@ export default function Home() {
         return found || pageVideos[0] || null;
     }, [pageVideos, isSeriesPage, isMoviesPage, allVideos]);
 
+    // Personalized Recommendations based on Watch History
+    const personalizedRecommendations = useMemo(() => {
+        if (!watchHistory || watchHistory.length === 0 || !pageVideos || pageVideos.length === 0) return null;
+
+        // 1. Calculate genre frequencies
+        const genreCounts = {};
+        watchHistory.forEach(v => {
+            if (v.category && v.category !== 'Unknown') {
+                genreCounts[v.category] = (genreCounts[v.category] || 0) + 1;
+            }
+        });
+
+        // 2. Find the top genre
+        const topGenre = Object.keys(genreCounts).reduce((a, b) => genreCounts[a] > genreCounts[b] ? a : b, null);
+
+        if (!topGenre) return null;
+
+        // 3. Filter pageVideos for this genre, excluding ones already in history
+        const historyIds = new Set(watchHistory.map(v => v.videoId || v.id));
+        const recommendations = pageVideos.filter(v => v.category === topGenre && !historyIds.has(v.id));
+
+        if (recommendations.length === 0) return null;
+
+        return {
+            title: `Top Picks for You (${topGenre})`,
+            videos: recommendations.slice(0, 8)
+        };
+    }, [watchHistory, pageVideos]);
 
     return (
         <div className="home-page" style={{ paddingBottom: '100px' }}>
@@ -127,6 +155,14 @@ export default function Home() {
                         {/* 0. Continue Watching (if exists) */}
                         {watchHistory && watchHistory.length > 0 && (
                             <MovieRow title="Continue Watching" videos={watchHistory} />
+                        )}
+
+                        {/* 0.5 Smart Recommendations */}
+                        {personalizedRecommendations && (
+                            <MovieRow 
+                                title={personalizedRecommendations.title} 
+                                videos={personalizedRecommendations.videos} 
+                            />
                         )}
 
                         {/* 1. Trending / Main Row */}
