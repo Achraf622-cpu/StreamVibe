@@ -193,6 +193,38 @@ export const DataProvider = ({ children }) => {
         }
     }, []);
 
+    // Auto-heal watchHistory "Unknown" categories on mount or when getMediaDetails is ready
+    useEffect(() => {
+        const healWatchHistory = async () => {
+             if (!watchHistory || !Array.isArray(watchHistory)) return;
+             
+             const unknownItems = watchHistory.filter(v => v.category === 'Unknown' || v.type === undefined);
+             if (unknownItems.length === 0) return;
+
+             let modified = false;
+             let newHistory = [...watchHistory];
+
+             for (const item of unknownItems) {
+                 try {
+                     const details = await getMediaDetails(item.id, item.type || 'movie');
+                     if (details && details.category && details.category !== 'Unknown') {
+                         newHistory = newHistory.map(v => v.id === item.id ? { ...v, category: details.category, type: details.type || v.type } : v);
+                         modified = true;
+                     }
+                 } catch (e) {
+                     console.error("Auto-heal failed for", item.id);
+                 }
+             }
+
+             if (modified) {
+                 setWatchHistory(newHistory);
+             }
+        };
+
+        healWatchHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []); // Run once to heal local storage
+
     return (
         <DataContext.Provider value={{
             allVideos,

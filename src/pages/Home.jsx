@@ -97,8 +97,8 @@ export default function Home() {
             {/* Show Hero only when NOT searching, or show a relevant result? Usually Hero is hidden on search */}
             {!searchQuery && <HeroSection video={featuredVideo} />}
 
-            {/* Adjusted margin to -60px to overlap slightly but not cover buttons */}
-            <div style={{ marginTop: searchQuery ? '40px' : '-60px', position: 'relative', zIndex: 10 }}>
+            {/* Adjusted margin to avoid overlapping with Play Now button */}
+            <div style={{ marginTop: searchQuery ? '40px' : '20px', position: 'relative', zIndex: 10 }}>
 
                 {/* Search Results Mode */}
                 {searchQuery ? (
